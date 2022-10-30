@@ -22,19 +22,32 @@ def min_edge_dominating_set(vertices, edges, adjacency_matrix):
         vertice1_max_adjacency = list(sorted_edges.keys())[0]
         vertice1_adjacency_list = sorted_edges[vertice1_max_adjacency]
         vertice2_max_adjacency = vertice1_adjacency_list[0]
+        vertice2_adjacency_list = []
         
         result.add((vertice1_max_adjacency, vertice2_max_adjacency))
         del sorted_edges[vertice1_max_adjacency]
+    
+        if vertice2_max_adjacency in sorted_edges.keys():
+            vertice2_adjacency_list = sorted_edges[vertice2_max_adjacency]
+            del sorted_edges[vertice2_max_adjacency]
 
         for vertice in vertice1_adjacency_list:
             if vertice in sorted_edges.keys():
-                if vertice == vertice2_max_adjacency:
-                    vertice2_adjacency_list = sorted_edges[vertice]
-                del sorted_edges[vertice]
+                lst = sorted_edges[vertice] 
+                lst.remove(vertice1_max_adjacency)
+                if len(lst) != 0:
+                    sorted_edges[vertice] = lst
+                else:
+                    del sorted_edges[vertice]
 
         for vertice in vertice2_adjacency_list:
             if vertice in sorted_edges.keys():
-                del sorted_edges[vertice]
+                lst = sorted_edges[vertice] 
+                lst.remove(vertice2_max_adjacency)
+                if len(lst) != 0:
+                    sorted_edges[vertice] = lst
+                else:
+                    del sorted_edges[vertice]
                 
     return result
 
