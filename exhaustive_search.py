@@ -3,18 +3,17 @@ import json
 import numpy as np
 
 def read_graph(num_vertices, percentage):
-    adjacency_matrix = np.loadtxt("graphs/graph_num_vertices_" + str(num_vertices) + "_percentage_" + str(percentage) + ".txt", dtype=int)
     file = open("graphs/graph_num_vertices_" + str(num_vertices) + "_percentage_" + str(percentage) + ".txt", "r")
-    vertices = file.readline()[1:-1].replace("'", "\"").replace("(", "[").replace(")", "]")
-    edges = file.readline()[1:-1].replace("'", "\"")
+    vertices = file.readline()[:-1].replace("'", "\"").replace("(", "[").replace(")", "]")
+    edges = file.readline().replace("'", "\"")
     file.close()
     vertices = {int(key):(value[0], value[1]) for key,value in json.loads(vertices).items()}
     edges = {int(key):value for key,value in json.loads(edges).items()}
-    return vertices, edges, adjacency_matrix
+    return vertices, edges
 
-def min_edge_dominating_set(vertices, edges, adjacency_matrix):
-    max_num_edges = int(np.sum(adjacency_matrix) / 2)
-
+def min_edge_dominating_set(vertices, edges):
+    max_num_edges = int(sum([len(edges[vertice1]) for vertice1 in edges]) / 2)
+    
     edges_set = set()
     for vertice1 in edges:
         for vertice2 in edges[vertice1]:
@@ -38,9 +37,9 @@ def min_edge_dominating_set(vertices, edges, adjacency_matrix):
 def main():
     for vertices_num in range(2, 11):
         for percentage in [0.125, 0.25, 0.50, 0.75]:
-            vertices, edges, adjacency_matrix = read_graph(vertices_num, percentage)
+            vertices, edges = read_graph(vertices_num, percentage)
             print("Vertices num: ", str(vertices_num), " percentage: " + str(percentage) )
-            print(min_edge_dominating_set(vertices, edges, adjacency_matrix))
+            print(min_edge_dominating_set(vertices, edges))
 
 if __name__ == "__main__":
     main()
