@@ -1,4 +1,16 @@
 import json
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def create_graphic_image(vertices, edges_set, num_vertices, percentage):
+    G = nx.Graph() 
+    for edge in edges_set:
+        G.add_node(edge[0], pos=vertices[edge[0]])
+        G.add_node(edge[1], pos=vertices[edge[1]])
+        G.add_edge(*edge)
+    nx.draw(G, pos=nx.get_node_attributes(G,'pos'), with_labels = True, node_color='lightblue')
+    plt.savefig("results/greedy_heuristics/graph_num_vertices_" + str(num_vertices) + "_percentage_" + str(percentage) + ".png")
+    plt.clf()
 
 def read_graph(num_vertices, percentage):
     file = open("graphs/graph_num_vertices_" + str(num_vertices) + "_percentage_" + str(percentage) + ".txt", "r")
@@ -48,11 +60,18 @@ def min_edge_dominating_set(vertices, edges):
     return result
 
 def main():
+    solutions = []
     for vertices_num in range(2, 11):
         for percentage in [0.125, 0.25, 0.50, 0.75]:
             vertices, edges = read_graph(vertices_num, percentage)
             print("Vertices num: ", str(vertices_num), " percentage: " + str(percentage) )
-            print(min_edge_dominating_set(vertices, edges))
+            solution_edges = min_edge_dominating_set(vertices, edges)
+            print(solution_edges)
+            solutions.append((vertices, solution_edges, vertices_num, percentage))
+    
+    print("Criar imagens...")
+    for solution in solutions:
+        create_graphic_image(*solution)
 
 if __name__ == "__main__":
     main()
