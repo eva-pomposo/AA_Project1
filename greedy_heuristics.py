@@ -2,6 +2,8 @@ import json
 import networkx as nx
 import matplotlib.pyplot as plt
 
+VERTICES_NUM_LAST_GRAPH = 10
+
 def create_graphic_image(vertices, edges_set, num_vertices, percentage):
     G = nx.Graph() 
     for edge in edges_set:
@@ -28,32 +30,25 @@ def min_edge_dominating_set(vertices, edges):
 
     while sorted_edges:
         vertice1_max_adjacency = list(sorted_edges.keys())[0]
-        vertice1_adjacency_list = sorted_edges[vertice1_max_adjacency]
-        vertice2_max_adjacency = vertice1_adjacency_list[0]
-        vertice2_adjacency_list = []
+        adjacent_vertices = sorted_edges[vertice1_max_adjacency]
+        vertice2_max_adjacency = adjacent_vertices[0]
         
         result.add((vertice1_max_adjacency, vertice2_max_adjacency))
         del sorted_edges[vertice1_max_adjacency]
     
         if vertice2_max_adjacency in sorted_edges.keys():
-            vertice2_adjacency_list = sorted_edges[vertice2_max_adjacency]
+            adjacent_vertices = adjacent_vertices + sorted_edges[vertice2_max_adjacency]
             del sorted_edges[vertice2_max_adjacency]
 
-        for vertice in vertice1_adjacency_list:
+        for vertice in set(adjacent_vertices):
             if vertice in sorted_edges.keys():
-                lst = sorted_edges[vertice] 
-                lst.remove(vertice1_max_adjacency)
-                if len(lst) != 0:
-                    sorted_edges[vertice] = lst
-                else:
-                    del sorted_edges[vertice]
-
-        for vertice in vertice2_adjacency_list:
-            if vertice in sorted_edges.keys():
-                lst = sorted_edges[vertice] 
-                lst.remove(vertice2_max_adjacency)
-                if len(lst) != 0:
-                    sorted_edges[vertice] = lst
+                adjacency_list = sorted_edges[vertice] 
+                if vertice1_max_adjacency in adjacency_list:
+                    adjacency_list.remove(vertice1_max_adjacency)
+                if vertice2_max_adjacency in adjacency_list:
+                    adjacency_list.remove(vertice2_max_adjacency)
+                if len(adjacency_list) != 0:
+                    sorted_edges[vertice] = adjacency_list
                 else:
                     del sorted_edges[vertice]
                 
@@ -61,7 +56,7 @@ def min_edge_dominating_set(vertices, edges):
 
 def main():
     solutions = []
-    for vertices_num in range(2, 11):
+    for vertices_num in range(2, VERTICES_NUM_LAST_GRAPH + 1):
         for percentage in [0.125, 0.25, 0.50, 0.75]:
             vertices, edges = read_graph(vertices_num, percentage)
             print("Vertices num: ", str(vertices_num), " percentage: " + str(percentage) )

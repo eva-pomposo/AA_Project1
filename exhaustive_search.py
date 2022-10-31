@@ -3,6 +3,8 @@ import json
 import networkx as nx
 import matplotlib.pyplot as plt
 
+VERTICES_NUM_LAST_GRAPH = 10
+
 def create_graphic_image(vertices, edges_set, num_vertices, percentage):
     G = nx.Graph() 
     for edge in edges_set:
@@ -23,32 +25,35 @@ def read_graph(num_vertices, percentage):
     return vertices, edges
 
 def min_edge_dominating_set(vertices, edges):
-    max_num_edges = int(sum([len(edges[vertice1]) for vertice1 in edges]) / 2)
-    
+    max_num_edges = []
     edges_set = set()
     for vertice1 in edges:
+        max_num_edges.append(len(edges[vertice1]))
         for vertice2 in edges[vertice1]:
             if (vertice2, vertice1) not in edges_set:
                 edges_set.add((vertice1, vertice2))
+
+    max_num_edges = int(sum(max_num_edges) / 2)
 
     for num_edges in range(1,max_num_edges):
         subsets = list(itertools.combinations(edges_set, num_edges))
 
         for subset in subsets:
-            flag_not_break = True
-            edges_not_in_subset = edges_set - set(subset)
+            subset = set(subset)
+            is_solution = True
+            edges_not_in_subset = edges_set - subset
             for edge in edges_not_in_subset:
                 #if all(edge[0] not in i for i in subset) and all(edge[1] not in i for i in subset):
                 if all(edge[0] not in i and edge[1] not in i for i in subset):
-                    flag_not_break = False
+                    is_solution = False
                     break
-            if flag_not_break:
-                return set(subset)
+            if is_solution:
+                return subset
     return edges_set
 
 def main():
     solutions = []
-    for vertices_num in range(2, 11):
+    for vertices_num in range(2, VERTICES_NUM_LAST_GRAPH + 1):
         for percentage in [0.125, 0.25, 0.50, 0.75]:
             vertices, edges = read_graph(vertices_num, percentage)
             print("Vertices num: ", str(vertices_num), " percentage: " + str(percentage) )
