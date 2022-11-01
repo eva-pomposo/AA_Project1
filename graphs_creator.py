@@ -2,16 +2,9 @@ import random
 import networkx as nx
 import matplotlib.pyplot as plt
 import math
-from itertools import product
-
-MIN_VALUE_COORDINATE = 1
-MAX_VALUE_COORDINATE = 20
-ALL_COORDINATE_POSSIBILITIES = list([coord for coord in product(range(MIN_VALUE_COORDINATE, MAX_VALUE_COORDINATE + 1), repeat = 2)])
-VERTICES_NUM_LAST_GRAPH = 10
+import getopt, sys
 
 def store_graph(vertices, edges, num_vertices, percentage, graph):
-    print(str({str(key): value for key, value in vertices.items()}) + "\n" + str({str(key): value for key, value in edges.items()}))
-    
     file = open("graphs/graph_num_vertices_" + str(num_vertices) + "_percentage_" + str(percentage) + ".txt", 'w')
     file.write(str({str(key): value for key, value in vertices.items()}) + "\n" + str({str(key): value for key, value in edges.items()}))
     file.close()
@@ -24,8 +17,7 @@ def calculate_max_num_edges(num_vertices):
     return num_vertices * (num_vertices - 1) / 2
 
 def create_edges_and_graph(percentage_max_num_edges, vertices, num_vertices):
-    G = nx.Graph() 
-    edges = {}
+    G, edges = nx.Graph(), {}
     num_edges = math.ceil(percentage_max_num_edges * calculate_max_num_edges(num_vertices))
     isolated_vertices = list(vertices.keys())
 
@@ -54,37 +46,57 @@ def create_edges_and_graph(percentage_max_num_edges, vertices, num_vertices):
 
     return edges, G
 
-def create_vertices(vertices_num):
+def create_vertices(vertices_num, max_value_coordinate):
     vertices = {}
 
     for vertice_name in range(1, vertices_num + 1):
-        vertices[vertice_name] = random.choice( ALL_COORDINATE_POSSIBILITIES )
-        ALL_COORDINATE_POSSIBILITIES.remove(vertices[vertice_name])
-        
+
+        while True:
+            x = random.randint(1, max_value_coordinate)
+            y = random.randint(1, max_value_coordinate)
+            if (x,y) not in vertices.values() and all(math.dist(coord, (x,y)) > 1 for coord in vertices.values()):
+                vertices[vertice_name] = x,y
+                break
+
     return vertices
 
-def create_graphs(vertices_num_in_larger_graph):
-    for vertices_num in range(2, vertices_num_in_larger_graph + 1):
-        vertices = create_vertices(vertices_num)
+def create_graphs(vertices_num_last_graph, max_value_coordinate):
+    for vertices_num in range(2, vertices_num_last_graph + 1):
+        vertices = create_vertices(vertices_num, max_value_coordinate)
         for percentage in [0.125, 0.25, 0.50, 0.75]:
             edges, graph = create_edges_and_graph(percentage, vertices, vertices_num)
             store_graph(vertices, edges, vertices_num, percentage, graph)
 
+def read_arguments():
+    # Remove 1st argument from the list of command line arguments
+    argumentList = sys.argv[1:]
+    
+    # Options
+    options = "v:m:"
+    long_options = ["Vertices_Num_Last_Graph", "Max_Value_Coordinate"]
+    
+    vertices_num_last_graph, max_value_coordinate = 10,20
+    try:
+        # Parsing argument
+        arguments, values = getopt.getopt(argumentList, options, long_options)
+        
+        # Checking each argument
+        for currentArgument, currentValue in arguments:
+    
+            if currentArgument in ("-v", "--Vertices_Num_Last_Graph"):
+                vertices_num_last_graph = int(currentValue)
+            elif currentArgument in ("-m", "--Max_Value_Coordinate"):
+                max_value_coordinate = int(currentValue)
+    except getopt.error as err:
+        # Output error, and return with an error code
+        print (str(err))
+    return vertices_num_last_graph, max_value_coordinate
+
 def main():
     random.seed(98513)
 
-    #  distância entre dois vértices tem de ser superior a 1
-    coordinates_to_remove = []
-
-    for coord_index in range(len(ALL_COORDINATE_POSSIBILITIES)):
-        if ALL_COORDINATE_POSSIBILITIES[coord_index] not in coordinates_to_remove:
-            for next_coord in ALL_COORDINATE_POSSIBILITIES[(coord_index + 1):]:
-                if (next_coord not in coordinates_to_remove) and (math.dist(ALL_COORDINATE_POSSIBILITIES[coord_index], next_coord) <= 1):
-                        coordinates_to_remove.append(next_coord)
-
-    [ ALL_COORDINATE_POSSIBILITIES.remove(coord) for coord in coordinates_to_remove ]
-
-    create_graphs(VERTICES_NUM_LAST_GRAPH)
+    print("Create graphs...")
+    create_graphs(*read_arguments())
 
 if __name__ == "__main__":
     main()

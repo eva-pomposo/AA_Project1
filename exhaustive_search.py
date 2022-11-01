@@ -1,9 +1,10 @@
+import getopt
 import itertools
 import json
+import sys
+import time
 import networkx as nx
 import matplotlib.pyplot as plt
-
-VERTICES_NUM_LAST_GRAPH = 10
 
 def create_graphic_image(vertices, edges_set, num_vertices, percentage):
     G = nx.Graph() 
@@ -25,8 +26,7 @@ def read_graph(num_vertices, percentage):
     return vertices, edges
 
 def min_edge_dominating_set(vertices, edges):
-    max_num_edges = []
-    edges_set = set()
+    max_num_edges, edges_set, basic_operations_num, configurations_tested = [], set(), 0, 0
     for vertice1 in edges:
         max_num_edges.append(len(edges[vertice1]))
         for vertice2 in edges[vertice1]:
@@ -39,8 +39,8 @@ def min_edge_dominating_set(vertices, edges):
         subsets = list(itertools.combinations(edges_set, num_edges))
 
         for subset in subsets:
-            subset = set(subset)
-            is_solution = True
+            configurations_tested += 1
+            subset, is_solution = set(subset), True
             edges_not_in_subset = edges_set - subset
             for edge in edges_not_in_subset:
                 #if all(edge[0] not in i for i in subset) and all(edge[1] not in i for i in subset):
@@ -48,20 +48,51 @@ def min_edge_dominating_set(vertices, edges):
                     is_solution = False
                     break
             if is_solution:
-                return subset
-    return edges_set
+                return subset, basic_operations_num, configurations_tested
+    return edges_set, basic_operations_num, configurations_tested
+
+def read_arguments():
+    # Remove 1st argument from the list of command line arguments
+    argumentList = sys.argv[1:]
+    
+    # Options
+    options = "v:"
+    long_options = ["Vertices_Num_Last_Graph"]
+    
+    vertices_num_last_graph = 10
+    try:
+        # Parsing argument
+        arguments, values = getopt.getopt(argumentList, options, long_options)
+        
+        # Checking each argument
+        for currentArgument, currentValue in arguments:
+    
+            if currentArgument in ("-v", "--Vertices_Num_Last_Graph"):
+                vertices_num_last_graph = int(currentValue)
+    except getopt.error as err:
+        # Output error, and return with an error code
+        print (str(err))
+    return vertices_num_last_graph
 
 def main():
+    file = open("results/analyze_exhaustive_search.txt", 'w')
+    file.write("vertices_num percentage_max_num_edges basic_operations_num configurations_tested execution_time\n")
     solutions = []
-    for vertices_num in range(2, VERTICES_NUM_LAST_GRAPH + 1):
+
+    for vertices_num in range(2, read_arguments() + 1):
         for percentage in [0.125, 0.25, 0.50, 0.75]:
             vertices, edges = read_graph(vertices_num, percentage)
-            print("Vertices num: ", str(vertices_num), " percentage: " + str(percentage) )
-            solution_edges = min_edge_dominating_set(vertices, edges)
-            print(solution_edges)
+
+            execution_time = time.time()
+            solution_edges, basic_operations_num, configurations_tested = min_edge_dominating_set(vertices, edges)
+            execution_time = time.time() - execution_time
+
+            file.write("%s %f %s %s %f\n" % (vertices_num, percentage, basic_operations_num, configurations_tested, execution_time))
             solutions.append((vertices, solution_edges, vertices_num, percentage))
     
-    print("Criar imagens...")
+    file.close()
+    
+    print("Create and save image of solution graphs...")
     for solution in solutions:
         create_graphic_image(*solution)
         

@@ -1,8 +1,9 @@
+import getopt
 import json
+import sys
+import time
 import networkx as nx
 import matplotlib.pyplot as plt
-
-VERTICES_NUM_LAST_GRAPH = 10
 
 def create_graphic_image(vertices, edges_set, num_vertices, percentage):
     G = nx.Graph() 
@@ -24,9 +25,9 @@ def read_graph(num_vertices, percentage):
     return vertices, edges
 
 def min_edge_dominating_set(vertices, edges):
+    result, basic_operations_num = set(), 0
     sorted_edges = dict(sorted(edges.items(), key = lambda entry: len(entry[1]), reverse=True))
     sorted_edges = { key:sorted(value, key = lambda vertice: list(sorted_edges.keys()).index(vertice)) for key,value in sorted_edges.items() }
-    result = set()
 
     while sorted_edges:
         vertice1_max_adjacency = list(sorted_edges.keys())[0]
@@ -52,19 +53,50 @@ def min_edge_dominating_set(vertices, edges):
                 else:
                     del sorted_edges[vertice]
                 
-    return result
+    return result, basic_operations_num
+    
+def read_arguments():
+    # Remove 1st argument from the list of command line arguments
+    argumentList = sys.argv[1:]
+    
+    # Options
+    options = "v:"
+    long_options = ["Vertices_Num_Last_Graph"]
+    
+    vertices_num_last_graph = 10
+    try:
+        # Parsing argument
+        arguments, values = getopt.getopt(argumentList, options, long_options)
+        
+        # Checking each argument
+        for currentArgument, currentValue in arguments:
+    
+            if currentArgument in ("-v", "--Vertices_Num_Last_Graph"):
+                vertices_num_last_graph = int(currentValue)
+    except getopt.error as err:
+        # Output error, and return with an error code
+        print (str(err))
+    return vertices_num_last_graph
 
 def main():
+    file = open("results/analyze_greedy.txt", 'w')
+    file.write("vertices_num percentage_max_num_edges basic_operations_num execution_time\n")
     solutions = []
-    for vertices_num in range(2, VERTICES_NUM_LAST_GRAPH + 1):
+    
+    for vertices_num in range(2, read_arguments() + 1):
         for percentage in [0.125, 0.25, 0.50, 0.75]:
             vertices, edges = read_graph(vertices_num, percentage)
-            print("Vertices num: ", str(vertices_num), " percentage: " + str(percentage) )
-            solution_edges = min_edge_dominating_set(vertices, edges)
-            print(solution_edges)
+
+            execution_time = time.time()
+            solution_edges, basic_operations_num = min_edge_dominating_set(vertices, edges)
+            execution_time = time.time() - execution_time
+
+            file.write("%s %f %s %f\n" % (vertices_num, percentage, basic_operations_num, execution_time))
             solutions.append((vertices, solution_edges, vertices_num, percentage))
     
-    print("Criar imagens...")
+    file.close()
+    
+    print("Create and save image of solution graphs...")
     for solution in solutions:
         create_graphic_image(*solution)
 
