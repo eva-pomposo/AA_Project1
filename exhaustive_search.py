@@ -27,14 +27,18 @@ def read_graph(num_vertices, percentage):
     return vertices, edges
 
 def min_edge_dominating_set(vertices, edges):
-    max_num_edges, edges_set, basic_operations_num, configurations_tested = [], set(), 0, 0
+    max_num_edges, edges_set, basic_operations_num, configurations_tested = [], set(), 2, 0
     for vertice1 in edges:
         max_num_edges.append(len(edges[vertice1]))
+        basic_operations_num += 3
         for vertice2 in edges[vertice1]:
+            basic_operations_num += 1
             if (vertice2, vertice1) not in edges_set:
                 edges_set.add((vertice1, vertice2))
+                basic_operations_num += 1
 
     max_num_edges = int(sum(max_num_edges) / 2)
+    basic_operations_num += 1
 
     for num_edges in range(1,max_num_edges):
         subsets = list(itertools.combinations(edges_set, num_edges))
@@ -43,11 +47,14 @@ def min_edge_dominating_set(vertices, edges):
             configurations_tested += 1
             subset, is_solution = set(subset), True
             edges_not_in_subset = edges_set - subset
+            basic_operations_num += 4
             for edge in edges_not_in_subset:
-                #if all(edge[0] not in i for i in subset) and all(edge[1] not in i for i in subset):
+                basic_operations_num += (2 * num_edges) + 1
                 if all(edge[0] not in i and edge[1] not in i for i in subset):
                     is_solution = False
+                    basic_operations_num += 1
                     break
+            basic_operations_num += 1
             if is_solution:
                 return subset, basic_operations_num, configurations_tested
     return edges_set, basic_operations_num, configurations_tested

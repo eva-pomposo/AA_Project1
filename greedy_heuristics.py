@@ -26,9 +26,9 @@ def read_graph(num_vertices, percentage):
     return vertices, edges
 
 def min_edge_dominating_set(vertices, edges):
-    result, basic_operations_num = set(), 0
     sorted_edges = dict(sorted(edges.items(), key = lambda entry: len(entry[1]), reverse=True))
     sorted_edges = { key:sorted(value, key = lambda vertice: list(sorted_edges.keys()).index(vertice)) for key,value in sorted_edges.items() }
+    result, basic_operations_num = set(), 5
 
     while sorted_edges:
         vertice1_max_adjacency = list(sorted_edges.keys())[0]
@@ -41,18 +41,25 @@ def min_edge_dominating_set(vertices, edges):
         if vertice2_max_adjacency in sorted_edges.keys():
             adjacent_vertices = adjacent_vertices + sorted_edges[vertice2_max_adjacency]
             del sorted_edges[vertice2_max_adjacency]
+            basic_operations_num += 5
 
+        basic_operations_num += 10
         for vertice in set(adjacent_vertices):
             if vertice in sorted_edges.keys():
                 adjacency_list = sorted_edges[vertice] 
                 if vertice1_max_adjacency in adjacency_list:
                     adjacency_list.remove(vertice1_max_adjacency)
+                    basic_operations_num += 1
                 if vertice2_max_adjacency in adjacency_list:
                     adjacency_list.remove(vertice2_max_adjacency)
+                    basic_operations_num += 1
                 if len(adjacency_list) != 0:
                     sorted_edges[vertice] = adjacency_list
+                    basic_operations_num += 6
                 else:
                     del sorted_edges[vertice]
+                    basic_operations_num += 8
+            basic_operations_num +=1
                 
     return result, basic_operations_num
     
