@@ -1,5 +1,6 @@
 import getopt
 import json
+import os
 import sys
 import time
 import networkx as nx
@@ -79,6 +80,13 @@ def read_arguments():
     return vertices_num_last_graph
 
 def main():
+    # Create the results folders if they don't exist already
+    if not os.path.isdir("results"): 
+        os.mkdir("results")
+        os.mkdir("results/greedy_heuristics")
+    elif not os.path.isdir("results/greedy_heuristics"):
+        os.mkdir("results/greedy_heuristics")
+
     file = open("results/analyze_greedy.txt", 'w')
     file.write("vertices_num percentage_max_num_edges basic_operations_num execution_time\n")
     solutions = []

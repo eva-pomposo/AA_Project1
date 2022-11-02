@@ -1,3 +1,4 @@
+import os
 import random
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -93,6 +94,10 @@ def read_arguments():
     return vertices_num_last_graph, max_value_coordinate
 
 def main():
+    # Create the results folders if they don't exist already
+    if not os.path.isdir("graphs"): 
+        os.mkdir("graphs")
+        
     random.seed(98513)
 
     print("Create graphs...")

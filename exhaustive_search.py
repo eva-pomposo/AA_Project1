@@ -1,6 +1,7 @@
 import getopt
 import itertools
 import json
+import os
 import sys
 import time
 import networkx as nx
@@ -75,6 +76,13 @@ def read_arguments():
     return vertices_num_last_graph
 
 def main():
+    # Create the results folders if they don't exist already
+    if not os.path.isdir("results"): 
+        os.mkdir("results")
+        os.mkdir("results/exhaustive_search")
+    elif not os.path.isdir("results/exhaustive_search"):
+        os.mkdir("results/exhaustive_search")
+        
     file = open("results/analyze_exhaustive_search.txt", 'w')
     file.write("vertices_num percentage_max_num_edges basic_operations_num configurations_tested execution_time\n")
     solutions = []
