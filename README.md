@@ -31,12 +31,12 @@ It might also be useful to graphically visualize the graph instances and the com
 
 ## How to run
 
-### Start by installing the requirements, creating a virtual environment for that:
+### Start by installing the requeriments, creating a virtual environment for that:
 ```
 python3 -m venv venv
 source venv/bin/activate
 python3 -m pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r requeriments.txt
 ```
 
 ### CLI optional arguments 

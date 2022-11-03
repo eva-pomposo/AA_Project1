@@ -91,7 +91,7 @@ def main():
         os.mkdir("results/exhaustive_search")
         
     file = open("results/analyze_exhaustive_search.txt", 'w')
-    file.write("vertices_num percentage_max_num_edges basic_operations_num configurations_tested execution_time\n")
+    file.write("vertices_num percentage_max_num_edges solution_size basic_operations_num configurations_tested execution_time\n")
     solutions = []
 
     for vertices_num in range(2, read_arguments() + 1):
@@ -102,7 +102,7 @@ def main():
             solution_edges, basic_operations_num, configurations_tested = min_edge_dominating_set(vertices, edges)
             execution_time = time.time() - execution_time
 
-            file.write("%s %f %s %s %f\n" % (vertices_num, percentage, basic_operations_num, configurations_tested, execution_time))
+            file.write("%s %f %s %s %s %f\n" % (vertices_num, percentage, len(solution_edges), basic_operations_num, configurations_tested, execution_time))
             solutions.append((vertices, solution_edges, vertices_num, percentage))
     
     file.close()
