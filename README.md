@@ -41,5 +41,19 @@ pip install -r requeriments.txt
 
 ### CLI optional arguments 
 
+First generate graphs and then test them in the developed algorithms.
+
+We can pass as an argument the number of vertices of the last graph to be generated (this program starts generating graphs from 2 vertices). This argument is passed by "-v".
+
+We can also pass as an argument the maximum number of coordinates that a vertex can have (the minimum is 1), this through the "-m"
+```
+python3 graphs_creator.py -v 350 -m 355
+```
+
+To run the algorithms:
+```
+python3 greedy_heuristics.py -v 350
+python3 exhaustive_search.py -v 13
+```
 ## Author
 Eva Bartolomeu, Nmec 98513
